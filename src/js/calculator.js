@@ -1,56 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
     const display = document.getElementById('display');
     const buttons = document.querySelectorAll('.btn');
-    let currentValue = ''; 
-    let operator = ''; 
-    let previousValue = ''; 
+    let expression = ''; 
+
     display.value = '0';
 
     buttons.forEach((button) => {
         button.addEventListener('click', () => {
             const value = button.getAttribute('data-value');
+
             if (button.id === 'clear') {
-                currentValue = '';
-                previousValue = '';
-                operator = '';
+                expression = '';
                 display.value = '0';
             } 
             else if (button.id === 'equals') {
-                if (previousValue && operator && currentValue) {
-                    const result = calculate(parseFloat(previousValue), parseFloat(currentValue), operator);
+                try {
+                    const result = new Function(`return ${expression}`)();
                     display.value = result;
-                    previousValue = result.toString(); 
-                    currentValue = '';
-                    operator = '';
-                }
-            } 
-            else if (button.classList.contains('operator')) {
-                if (currentValue) {
-                    operator = value;
-                    previousValue = currentValue;
-                    currentValue = '';
-                    display.value = `${previousValue} ${operator}`;
+                    expression = result.toString(); 
+                } catch (error) {
+                    display.value = 'Error';
+                    expression = '';
                 }
             } 
             else {
-                currentValue += value;
-                display.value = operator ? `${previousValue} ${operator} ${currentValue}` : currentValue;
+                expression += value;
+                display.value = expression;
             }
         });
     });
-
-    function calculate(a, b, operator) {
-        switch (operator) {
-            case '+':
-                return a + b;
-            case '-':
-                return a - b;
-            case '*':
-                return a * b;
-            case '/':
-                return b !== 0 ? a / b : "Can't divide by zero!"; 
-            default:
-                return 0;
-        }
-    }
 });
